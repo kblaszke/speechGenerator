@@ -1,10 +1,10 @@
-package pl.blaszak.speech;
+package pl.blaszak.speech.server;
 
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
-import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.blaszak.speech.service.ItemGeneratorService;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -56,15 +56,5 @@ public class ItemGeneratorServer {
         ItemGeneratorServer server = new ItemGeneratorServer();
         server.start();
         server.blockUntilShutdown();
-    }
-
-    static class ItemGeneratorService extends ItemGeneratorGrpc.ItemGeneratorImplBase {
-
-        @Override
-        public void stickOnItem(SpeechItemRequest request, StreamObserver<SpeechItemResponse> responseObserver) {
-            SpeechItemResponse response = SpeechItemResponse.newBuilder().setMessage(request.getContent() + "add some content ").build();
-            responseObserver.onNext(response);
-            responseObserver.onCompleted();
-        }
     }
 }

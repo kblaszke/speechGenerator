@@ -1,4 +1,4 @@
-package pl.blaszak.speech;
+package pl.blaszak.speech.client;
 
 import io.grpc.Channel;
 import io.grpc.ManagedChannel;
@@ -6,6 +6,9 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.blaszak.speech.ItemGeneratorGrpc;
+import pl.blaszak.speech.SpeechItemRequest;
+import pl.blaszak.speech.SpeechItemResponse;
 
 import java.util.concurrent.TimeUnit;
 
