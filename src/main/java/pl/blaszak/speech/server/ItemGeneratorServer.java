@@ -4,6 +4,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pl.blaszak.speech.ItemGeneratorUtil;
 import pl.blaszak.speech.service.ItemGeneratorService;
 
 import java.io.IOException;
@@ -13,19 +14,28 @@ public class ItemGeneratorServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemGeneratorServer.class);
 
-    private Server server;
+    private final Server server;
 
-    private void start() throws IOException {
-        /* The port on which the server should run */
-        int port = 50051;
-        server = ServerBuilder.forPort(port)
-                .addService(new ItemGeneratorService())
-                .build().start();
-        LOGGER.info("Server started, listening on " + port);
+    public static Server forGRPC(int port, ItemGeneratorService service) {
+        return ServerBuilder.forPort(port)
+                .addService(service)
+                .build();
+    }
+
+    public static ItemGeneratorServer build(Server server) {
+        return new ItemGeneratorServer(server);
+    }
+
+    private ItemGeneratorServer(Server server) {
+        this.server = server;
+    }
+
+    public void start() throws IOException {
+        server.start();
+        LOGGER.info("Server started, listening on " + server.getPort());
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
                     ItemGeneratorServer.this.stop();
@@ -37,24 +47,24 @@ public class ItemGeneratorServer {
         });
     }
 
-    private void stop() throws InterruptedException {
+    public void stop() throws InterruptedException {
         if (server != null) {
             server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
         }
     }
 
-    /**
-     * Await termination on the main thread since the grpc library uses daemon threads.
-     */
-    private void blockUntilShutdown() throws InterruptedException {
+    public void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }
     }
 
-    public static void main(String[] args) throws InterruptedException, IOException {
-        ItemGeneratorServer server = new ItemGeneratorServer();
-        server.start();
-        server.blockUntilShutdown();
+    public static void main(String[] args) throws Exception {
+        int port = 50051;
+        ItemGeneratorUtil util = new ItemGeneratorUtil();
+        ItemGeneratorService service = new ItemGeneratorService(util.loadFile("fragments1.txt"));
+        ItemGeneratorServer itemGeneratorServer = ItemGeneratorServer.build(forGRPC(port, service));
+        itemGeneratorServer.start();
+        itemGeneratorServer.blockUntilShutdown();
     }
 }
