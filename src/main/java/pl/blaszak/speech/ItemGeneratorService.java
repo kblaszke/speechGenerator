@@ -1,13 +1,8 @@
-package pl.blaszak.speech.service;
+package pl.blaszak.speech;
 
 import io.grpc.stub.StreamObserver;
-import pl.blaszak.speech.ItemGeneratorGrpc;
-import pl.blaszak.speech.SpeechItemRequest;
-import pl.blaszak.speech.SpeechItemResponse;
 
 import java.util.Random;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 public class ItemGeneratorService extends ItemGeneratorGrpc.ItemGeneratorImplBase {
 
@@ -20,11 +15,9 @@ public class ItemGeneratorService extends ItemGeneratorGrpc.ItemGeneratorImplBas
     }
 
     @Override
-    public void stickOnItem(SpeechItemRequest request, StreamObserver<SpeechItemResponse> responseObserver) {
-        String input = request.getContent();
-        String stringResponse = !isEmpty(input) ?  input + " " + drawItem() : drawItem();
+    public void getItem(SpeechItemRequest request, StreamObserver<SpeechItemResponse> responseObserver) {
         SpeechItemResponse response = SpeechItemResponse.newBuilder()
-                .setMessage(stringResponse)
+                .setMessage(drawItem())
                 .build();
         responseObserver.onNext(response);
         responseObserver.onCompleted();

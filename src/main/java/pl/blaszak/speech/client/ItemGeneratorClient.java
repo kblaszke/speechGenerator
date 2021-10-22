@@ -8,17 +8,22 @@ import org.slf4j.LoggerFactory;
 import pl.blaszak.speech.ItemGeneratorGrpc;
 import pl.blaszak.speech.SpeechItemRequest;
 
-import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
+
+import static pl.blaszak.speech.GeneratorConfig.AWAIT_TERMINATION_TIME;
+import static pl.blaszak.speech.GeneratorConfig.AWAIT_TERMINATION_TIME_UNIT;
 
 public class ItemGeneratorClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemGeneratorClient.class);
 
-    private static final long AWAIT_TERMINATION_TIME = 5;
-    private static final TimeUnit AWAIT_TERMINATION_TIME_UNIT = TimeUnit.SECONDS;
-
     private final ManagedChannel channel;
     private final ItemGeneratorGrpc.ItemGeneratorBlockingStub blockingStub;
+
+    public ItemGeneratorClient(ManagedChannel channel) {
+        this.channel = channel;
+        this.blockingStub = ItemGeneratorGrpc.newBlockingStub(channel);
+    }
 
     public static ManagedChannel forChannelOn(int port) {
         String target = "localhost:" + port;
@@ -27,39 +32,18 @@ public class ItemGeneratorClient {
                 .build();
     }
 
-    public static ItemGeneratorClient build(ManagedChannel channel) {
-        return new ItemGeneratorClient(channel);
-    }
-
-    public ItemGeneratorClient(ManagedChannel channel) {
-        this.channel = channel;
-        this.blockingStub = ItemGeneratorGrpc.newBlockingStub(channel);
-    }
-
-    public String stickOnItem(String speechItem) {
-        LOGGER.info("Will try to make speech item from: " + speechItem + " ...");
-        SpeechItemRequest request = SpeechItemRequest.newBuilder().setContent(speechItem).build();
-        try {
-            return blockingStub.stickOnItem(request).getMessage();
-        } catch (StatusRuntimeException e) {
-            LOGGER.warn("RPC failed: {}", e.getStatus());
-            return null;
-        }
-    }
-
+    @PreDestroy
     public void shutdown() throws InterruptedException {
         channel.shutdown().awaitTermination(AWAIT_TERMINATION_TIME, AWAIT_TERMINATION_TIME_UNIT);
     }
 
-    public static void main(String[] args) throws Exception {
-        ItemGeneratorClient client = ItemGeneratorClient.build(forChannelOn(50051));
+    public String getItem() {
+        SpeechItemRequest request = SpeechItemRequest.newBuilder().build();
         try {
-            for(int i = 0; i < 8; i++) {
-                String item = client.stickOnItem("");
-                System.out.println("************* " + item);
-            }
-        } finally {
-            client.shutdown();
+            return blockingStub.getItem(request).getMessage();
+        } catch (StatusRuntimeException e) {
+            LOGGER.warn("RPC failed: {}", e.getStatus());
+            return null;
         }
     }
 }

@@ -1,5 +1,8 @@
 package pl.blaszak.speech;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -9,11 +12,18 @@ import java.util.List;
 
 public class ItemGeneratorUtil {
 
-    public String[] loadFile(String filename) throws Exception{
-        URL resource = getClass().getClassLoader().getResource(filename);
-        Path path = Paths.get(resource.toURI());
-        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-        return lines.toArray(new String[0]);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemGeneratorUtil.class);
+
+    public String[] loadFile(String filename) {
+        try {
+            URL resource = getClass().getClassLoader().getResource(filename);
+            Path path = Paths.get(resource.toURI());
+            List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+            return lines.toArray(new String[0]);
+        } catch (Exception e) {
+            LOGGER.error("Can not load the file " + filename, e);
+            return new String[0];
+        }
     }
 
 }

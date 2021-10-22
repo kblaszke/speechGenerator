@@ -7,19 +7,13 @@ option objc_class_prefix = "SIG";
 
 package speech;
 
-// The greeting service definition.
 service ItemGenerator {
-  // Sends a greeting
-  rpc StickOnItem (SpeechItemRequest) returns (SpeechItemResponse) {}
+  rpc GetItem (SpeechItemRequest) returns (SpeechItemResponse) {}
 }
 
-// The request message containing the user's name.
 message SpeechItemRequest {
-  string content = 1;
 }
 
-// The response message containing the greetings
 message SpeechItemResponse {
-  int32 code = 1;
   string message = 2;
 }
