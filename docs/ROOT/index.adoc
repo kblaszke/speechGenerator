@@ -1,0 +1,55 @@
+= Speech Generator
+
+** xref:proto.adoc[Proto file]
+** xref:server.adoc[GRPC Server]
+** xref:client.adoc[GRPC Client]
+
+[.text-center]
+.Sequence Diagram
+[plantuml]
+....
+@startuml
+
+actor "Blaszak" as act1
+
+participant "ClientManager" as cliMann
+participant "Client 1" as cli1
+participant "Client 4" as cli4
+
+boundary "Client/Server" as gRpcBoundary
+box "Server side (1..4)"
+participant "Server 1" as srv1
+participant "Server 4" as srv4
+end box
+
+loop n times
+act1 -> cliMann: get speech sentence
+activate cliMann
+    cliMann -> cli1 : get first fragment
+    activate cli1
+    cli1 --> srv1 : get fragment
+    activate srv1
+    srv1 -> srv1 : internal service call
+    srv1 --> cli1 : fragment
+    deactivate srv1
+    cli1 -> cliMann : first fragment
+    deactivate cli1
+    == cli2-srv2, cli3-srv3 ==
+    cliMann -> cli4 : get fourth fragment
+    activate cli4
+    cli4 --> srv4 : get fragment
+    activate srv4
+    srv4 -> srv4 : internal service call
+    srv4 --> cli4 : fragment
+    deactivate srv4
+    cli4 -> cliMann: fourth fragment
+
+deactivate cli4
+cliMann -> act1: speech sentence
+deactivate cliMann
+end
+@enduml
+....
+
+
+

@@ -1,0 +1,8 @@
+name: sg
+title: Speech Generator
+version: prod
+start_page: index.adoc
+asciidoc:
+  attributes:
+    section: Miscellaneous
+    section2: Speech Generator

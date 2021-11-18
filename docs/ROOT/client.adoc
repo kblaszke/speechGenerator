@@ -1,0 +1,40 @@
+== Client Side
+
+[.text-center]
+.Client Side Classes Diagram
+[plantuml]
+....
+@startuml
+class ItemGeneratorClient {
+-final ManagedChannel channel
+-final ItemGeneratorGrpc.ItemGeneratorBlockingStub blockingStub
+
++String getItem()
++void shutdown()
+}
+
+abstract io.grpc.ManagedChannel {
+
+}
+
+class ItemGeneratorClientManager {
+-final List<ItemGeneratorClient> clients
++String createSentence()
+}
+
+class io.grpc.ManagedChannelBuilder {
++static ManagedChannelBuilder forTarget(String target)
++ManagedChannelBuilder usePlaintext()
++ManagedChannel build()
+}
+
+note left of io.grpc.ManagedChannelBuilder::forTarget
+<b>String target = "ip_address:port</>
+<i>String target = "localhost:500051"</i>
+end note
+
+ItemGeneratorClientManager "*" *-->  ItemGeneratorClient
+ItemGeneratorClient "1" *--> "1" io.grpc.ManagedChannel
+io.grpc.ManagedChannelBuilder ..> io.grpc.ManagedChannel
+@enduml
+....
