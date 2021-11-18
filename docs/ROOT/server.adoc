@@ -1,0 +1,56 @@
+== Server Side
+
+[.text-center]
+.Server Side Classes Diagram
+[plantuml]
+....
+@startuml
+
+class ItemGeneratorServer {
+-final Server server
++void start()
++void stop()
+}
+
+class io.grpc.ServerBuilder {
++static ServerBuilder forPort(int port)
++ServerBuilder addService(BindableService service)
++Server build()
+}
+
+class io.grpc.Server {
++Server start()
++Server shutdown()
++Server awaitTermination(long var1, TimeUnit var3)
++int getPort()
+}
+
+
+ItemGeneratorServer "1" *--> "1" io.grpc.Server
+io.grpc.Server <.. io.grpc.ServerBuilder
+
+@enduml
+....
+
+[.text-center]
+.Server-Service binding
+[plantuml]
+....
+@startuml
+class ItemGeneratorService {
+-final String[] fragmentTable
++void getItem(SpeechItemRequest request, StreamObserver<SpeechItemResponse> responseObserver)
+}
+
+abstract ItemGeneratorImplBase #palegreen ##green {
++void getItem(SpeechItemRequest request,StreamObserver<SpeechItemResponse> responseObserver)
+}
+
+interface io.grpc.BindableService {
+}
+
+ItemGeneratorImplBase <|-- ItemGeneratorService
+io.grpc.BindableService <|.. ItemGeneratorImplBase
+
+@enduml
+....
